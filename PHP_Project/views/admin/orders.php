@@ -1,257 +1,7 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Orders - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="/css/modern.css" rel="stylesheet">
-    <style>
-        body {
-            background: var(--bg-light);
-            color: var(--text-dark);
-        }
-
-        .orders-card {
-            background: var(--bg-white);
-            border: 1px solid rgba(33, 40, 66, 0.1);
-            border-radius: 12px;
-            padding: 2rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .orders-card:hover {
-            background: var(--bg-white);
-            border-color: var(--primary-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-        }
-
-        .order-row {
-            background: var(--bg-light);
-            border-left: 4px solid var(--primary-color);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .order-row:hover {
-            background: var(--bg-white);
-            border-left-color: var(--primary-dark);
-            transform: translateX(5px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .order-id {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary-dark);
-        }
-
-        .order-status {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .status-pending {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
-        }
-
-        .status-processing {
-            background: rgba(33, 150, 243, 0.2);
-            color: #2196f3;
-        }
-
-        .status-out-for-delivery {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4caf50;
-        }
-
-        .status-done {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4caf50;
-        }
-
-        .status-cancelled {
-            background: rgba(244, 67, 54, 0.2);
-            color: #f44336;
-        }
-
-        .order-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .detail-item {
-            text-align: center;
-        }
-
-        .detail-label {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-
-        .detail-value {
-            font-size: 1.1rem;
-            color: var(--text-dark);
-            font-weight: 600;
-        }
-
-        .order-items {
-            background: var(--bg-white);
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .item-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .item-list li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .item-list li:last-child {
-            border-bottom: none;
-        }
-
-        .item-quantity {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .item-price {
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .btn-small {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-status {
-            background: rgba(52, 152, 219, 0.2);
-            color: #3498db;
-        }
-
-        .btn-status:hover {
-            background: rgba(52, 152, 219, 0.4);
-        }
-
-        .btn-cancel {
-            background: rgba(220, 53, 69, 0.2);
-            color: #dc3545;
-        }
-
-        .btn-cancel:hover {
-            background: rgba(220, 53, 69, 0.4);
-        }
-
-        .filter-section {
-            background: var(--bg-white);
-            border: 1px solid var(--border-color);
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-        }
-
-        .filter-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .filter-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .filter-label {
-            color: var(--text-dark);
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .filter-input {
-            background: var(--bg-white) !important;
-            border: 1px solid var(--border-color) !important;
-            color: var(--text-dark) !important;
-            border-radius: 6px;
-            padding: 0.75rem;
-        }
-
-        .filter-input::placeholder {
-            color: var(--text-muted) !important;
-        }
-
-        .filter-input:focus {
-            background: var(--bg-white) !important;
-            border-color: var(--primary-dark) !important;
-            box-shadow: 0 0 0 3px rgba(33, 40, 66, 0.1);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: var(--text-muted);
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            color: var(--primary-dark);
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        @keyframes fadeOutSlide {
-            0% {
-                opacity: 1;
-                transform: translateX(0);
-            }
-            100% {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-        }
-    </style>
-</head>
-<body>
+<?php
+$pageTitle = 'Manage Orders - Admin';
+include __DIR__ . '/../layouts/head.php';
+?>
     <!-- Navigation Component -->
     <?php include(__DIR__ . '/../components/navbar.php'); ?>
 
@@ -272,28 +22,28 @@
 
         <!-- Orders Summary -->
         <div id="summarySection" style="display: none;">
-            <div class="orders-card" style="background: linear-gradient(135deg, rgba(44, 24, 16, 0.05) 0%, rgba(139, 111, 71, 0.05) 100%); border-left: 4px solid #8B6F47;">
-                <h5 style="color: var(--text-dark); margin-bottom: 1.5rem;">
+            <div class="orders-card mb-4" style="border-left: 4px solid var(--primary-accent);">
+                <h5 class="fw-bold mb-4">
                     <i class="fas fa-chart-line"></i> Orders Summary
                 </h5>
-                <div class="summary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-                    <div class="summary-item">
-                        <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                <div class="row g-4">
+                    <div class="col-md-4 summary-item text-center">
+                        <div class="text-muted small mb-2">
                             <i class="fas fa-check-circle"></i> Total Done Orders
                         </div>
-                        <div id="doneCount" style="font-size: 2rem; font-weight: 700; color: #27AE60;">0</div>
+                        <div id="doneCount" class="fs-2 fw-bold" style="color: var(--success-color);">0</div>
                     </div>
-                    <div class="summary-item">
-                        <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    <div class="col-md-4 summary-item text-center">
+                        <div class="text-muted small mb-2">
                             <i class="fas fa-dollar-sign"></i> Total Revenue
                         </div>
-                        <div id="doneTotal" style="font-size: 2rem; font-weight: 700; color: #8B6F47;">EGP 0.00</div>
+                        <div id="doneTotal" class="fs-2 fw-bold" style="color: var(--primary-accent);">EGP 0.00</div>
                     </div>
-                    <div class="summary-item">
-                        <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    <div class="col-md-4 summary-item text-center">
+                        <div class="text-muted small mb-2">
                             <i class="fas fa-boxes"></i> Total Items (Done)
                         </div>
-                        <div id="doneItems" style="font-size: 2rem; font-weight: 700; color: #2196f3;">0</div>
+                        <div id="doneItems" class="fs-2 fw-bold" style="color: var(--info-color);">0</div>
                     </div>
                 </div>
             </div>
@@ -342,7 +92,7 @@
 
         <!-- Orders List -->
         <div class="orders-card">
-            <h5 style="color: var(--text-dark); margin-bottom: 1.5rem;">
+            <h5 class="fw-bold mb-4">
                 <i class="fas fa-list"></i> Orders
             </h5>
             <div id="ordersContainer">
@@ -357,16 +107,16 @@
     <!-- Status Change Modal -->
     <div class="modal fade" id="statusModal" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content" style="background: var(--bg-white); border: 1px solid var(--border-color);">
-                <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
-                    <h5 class="modal-title" style="color: var(--text-dark);">Update Order Status</h5>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Order Status</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="statusOrderId">
                     <div class="mb-3">
-                        <label class="form-label" style="color: var(--text-dark);">New Status</label>
-                        <select id="newStatus" class="form-control filter-input">
+                        <label class="form-label form-label-modern">New Status</label>
+                        <select id="newStatus" class="filter-input">
                             <option value="pending">Pending</option>
                             <option value="processing">Processing</option>
                             <option value="out-for-delivery">Out for Delivery</option>
@@ -375,9 +125,9 @@
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn" style="background: linear-gradient(135deg, #F0E7D5 0%, #212842 100%); color: #1a1a1a; border: none;" onclick="updateOrderStatus()">
+                    <button type="button" class="btn btn-primary-modern" onclick="updateOrderStatus()">
                         Update
                     </button>
                 </div>
@@ -388,8 +138,7 @@
     <!-- Footer -->
     <?php include(__DIR__ . '/../components/footer.php'); ?>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/app.js"></script>
+    <?php include __DIR__ . '/../layouts/scripts.php'; ?>
     <script>
         let allOrders = [];
         let userMap = {};
@@ -500,7 +249,7 @@
                     </div>
 
                     <div class="order-items">
-                        <strong style="color: var(--text-dark); display: block; margin-bottom: 0.5rem;">
+                        <strong class="d-block mb-2">
                             <i class="fas fa-shopping-bag"></i> Order Items
                         </strong>
                         <ul class="item-list">
@@ -573,22 +322,22 @@
             modal.tabindex = '-1';
             modal.innerHTML = `
                 <div class="modal-dialog">
-                    <div class="modal-content" style="background: var(--bg-white); border: 1px solid var(--border-color);">
-                        <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
-                            <h5 class="modal-title" style="color: var(--text-dark);">
-                                <i class="fas fa-exclamation-triangle" style="color: #f44336;"></i> Confirm Cancellation
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-exclamation-triangle text-warning"></i> Confirm Cancellation
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <div class="modal-body" style="color: var(--text-dark);">
+                        <div class="modal-body">
                             <p>Are you sure you want to cancel order <strong>#${orderId}</strong>?</p>
-                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0;">
+                            <p class="text-muted small mb-0">
                                 This action will remove the order from the list.
                             </p>
                         </div>
-                        <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                        <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep It</button>
-                            <button type="button" class="btn btn-danger" id="adminConfirmCancelBtn" style="cursor: pointer;">
+                            <button type="button" class="btn btn-danger" id="adminConfirmCancelBtn">
                                 <i class="fas fa-times"></i> Yes, Cancel Order
                             </button>
                         </div>

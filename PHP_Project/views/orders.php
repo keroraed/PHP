@@ -1,208 +1,11 @@
- 
 <?php
 if (!isset($_SESSION['user_id'])) {
     header('Location: /login');
     exit;
 }
+$pageTitle = 'My Orders';
+include __DIR__ . '/layouts/head.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders - Premium Cafeteria</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="/css/modern.css" rel="stylesheet">
-    <style>
-        .order-card {
-            background: var(--bg-white);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .order-card:hover {
-            background: var(--bg-white);
-            border-color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .order-id {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary-dark);
-        }
-
-        .order-status {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .status-pending {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
-        }
-
-        .status-processing {
-            background: rgba(33, 150, 243, 0.2);
-            color: #2196f3;
-        }
-
-        .status-out-for-delivery {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4caf50;
-        }
-
-        .status-done {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4caf50;
-        }
-
-        .status-cancelled {
-            background: rgba(244, 67, 54, 0.2);
-            color: #f44336;
-        }
-
-        .order-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .detail-item {
-            text-align: center;
-            padding: 0.5rem;
-        }
-
-        .detail-label {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            margin-bottom: 0.3rem;
-        }
-
-        .detail-value {
-            font-size: 1rem;
-            color: var(--text-dark);
-            font-weight: 600;
-        }
-
-        .order-items {
-            background: var(--bg-light);
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .item-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .item-list li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .item-list li:last-child {
-            border-bottom: none;
-        }
-
-        .item-name {
-            color: var(--text-dark);
-        }
-
-        .item-details {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .item-price {
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-muted);
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            color: var(--primary-dark);
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .empty-state p {
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .btn-primary-modern {
-            background: linear-gradient(135deg, #F0E7D5 0%, #212842 100%);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 24px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary-modern:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(240, 231, 213, 0.2);
-            color: #fff;
-            text-decoration: none;
-        }
-        
-        .order-actions {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: flex-end;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .btn-cancel-order {
-            background: rgba(220, 53, 69, 0.1);
-            border: 1px solid rgba(220, 53, 69, 0.35);
-            color: #dc3545;
-            border-radius: 8px;
-            padding: 0.5rem 0.9rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-cancel-order:hover {
-            background: rgba(220, 53, 69, 0.18);
-            transform: translateY(-1px);
-        }
-    </style>
-</head>
-<body>
     <!-- Navigation Component -->
     <?php include(__DIR__ . '/components/navbar.php'); ?>
 
@@ -228,7 +31,7 @@ if (!isset($_SESSION['user_id'])) {
                         <div class="card-body-modern">
                             <div id="pendingCartItems"></div>
                             
-                            <div style="background: #f9f6f1; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <div class="cart-totals-summary">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Subtotal:</span>
                                     <strong id="cartSubtotal">EGP 0</strong>
@@ -237,14 +40,14 @@ if (!isset($_SESSION['user_id'])) {
                                     <span>Tax (14%):</span>
                                     <strong id="cartTax">EGP 0</strong>
                                 </div>
-                                <hr style="border-color: #e8e0d5; margin: 10px 0;">
+                                <hr class="my-2 border-0" style="height:1px;background:#e8e0d5;">
                                 <div class="d-flex justify-content-between">
-                                    <span style="font-size: 1.1rem; font-weight: bold;">Total:</span>
-                                    <strong style="font-size: 1.2rem; color: var(--primary-accent);" id="cartTotal">EGP 0</strong>
+                                    <span class="fw-bold fs-6">Total:</span>
+                                    <strong class="fs-5" style="color: var(--primary-accent);" id="cartTotal">EGP 0</strong>
                                 </div>
                             </div>
                             
-                            <div style="display: flex; gap: 1rem; margin-top: 15px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 1rem; margin-top: 15px; flex-wrap: wrap;">
                                 <button onclick="placePendingOrder()" class="btn btn-primary-modern flex-grow-1" style="min-width: 150px;">
                                     <i class="fas fa-check me-2"></i> Place Order
                                 </button>
@@ -277,7 +80,7 @@ if (!isset($_SESSION['user_id'])) {
     <!-- Footer -->
     <?php include __DIR__ . '/components/footer.php'; ?>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <?php include __DIR__ . '/layouts/scripts.php'; ?>
     <script>
         // Display pending cart
         function displayPendingCart() {
@@ -297,19 +100,19 @@ if (!isset($_SESSION['user_id'])) {
             section.style.display = 'block';
             const itemsContainer = document.getElementById('pendingCartItems');
             
-            let html = '<ul class="list-unstyled mb-0">';
+            let html = '<ul class="item-list mb-0">';
             Object.values(cart).forEach(item => {
                 const subtotal = item.quantity * item.price;
                 html += `
-                    <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #e8e0d5;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; color: var(--primary-dark);">${item.name}</div>
-                            <small style="color: #a89785;">${item.quantity} × EGP ${item.price.toFixed(2)}</small>
+                    <li>
+                        <div class="flex-grow-1">
+                            <div class="item-name">${item.name}</div>
+                            <small class="item-details">${item.quantity} × EGP ${item.price.toFixed(2)}</small>
                         </div>
-                        <div style="margin-right: 12px;">
-                            <strong style="color: var(--primary-accent);">EGP ${subtotal.toFixed(2)}</strong>
+                        <div class="me-3">
+                            <strong class="item-price">EGP ${subtotal.toFixed(2)}</strong>
                         </div>
-                        <button onclick="removeFromCart(${item.id})" class="btn btn-sm" style="background: rgba(220,53,69,0.2); color: #dc3545; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer;">
+                        <button onclick="removeFromCart(${item.id})" class="btn-remove-cart-item">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </li>
@@ -472,7 +275,7 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
 
                     <div class="order-items">
-                        <strong style="color: var(--text-dark); display: block; margin-bottom: 0.5rem;">
+                        <strong class="d-block mb-2 text-dark">
                             <i class="fas fa-list"></i> Order Items
                         </strong>
                         <ul class="item-list">
@@ -500,22 +303,22 @@ if (!isset($_SESSION['user_id'])) {
             confirmModal.tabIndex = '-1';
             confirmModal.innerHTML = `
                 <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content" style="border: 1px solid #e8e0d5;">
-                        <div class="modal-header" style="background: #f9f6f1; border-bottom: 1px solid #e8e0d5;">
+                    <div class="modal-content border border-light">
+                        <div class="modal-header bg-light">
                             <h5 class="modal-title">
-                                <i class="fas fa-trash-alt" style="color: #dc3545;"></i> Cancel Order
+                                <i class="fas fa-trash-alt text-danger"></i> Cancel Order
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <p>Are you sure you want to cancel this order? This action cannot be undone.</p>
-                            <p style="color: #666; font-size: 0.9rem; margin-top: 1rem;">Order #${orderId} will be permanently removed from your orders list.</p>
+                            <p class="text-muted small mt-3">Order #${orderId} will be permanently removed from your orders list.</p>
                         </div>
-                        <div class="modal-footer" style="border-top: 1px solid #e8e0d5;">
+                        <div class="modal-footer">
                             <button type="button" class="btn btn-secondary-modern" data-bs-dismiss="modal">
                                 <i class="fas fa-times me-2"></i> Keep Order
                             </button>
-                            <button type="button" class="btn" style="background: #dc3545; color: white; border: none;" onclick="confirmCancelOrder(${orderId})">
+                            <button type="button" class="btn btn-danger" onclick="confirmCancelOrder(${orderId})">
                                 <i class="fas fa-trash-alt me-2"></i> Yes, Cancel Order
                             </button>
                         </div>
@@ -610,6 +413,5 @@ if (!isset($_SESSION['user_id'])) {
             loadOrders();
         });
     </script>
-    <script src="/js/app.js"></script>
 </body>
 </html>

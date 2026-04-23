@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu - Premium Cafeteria Manager</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="/css/modern.css" rel="stylesheet">
-</head>
-<body>
+<?php
+$pageTitle = 'Menu';
+include __DIR__ . '/layouts/head.php';
+?>
     <?php include __DIR__ . '/components/navbar.php'; ?>
 
     <!-- Page Header -->
@@ -146,8 +139,7 @@
     <?php include __DIR__ . '/components/footer.php'; ?>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/app.js"></script>
+    <?php include __DIR__ . '/layouts/scripts.php'; ?>
 
     <script>
         const isAdmin = <?php echo (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') ? 'true' : 'false'; ?>;
@@ -156,13 +148,6 @@
         let currentPage = 1;
         let currentView = 'grid';
         const itemsPerPageOptions = [6, 12, 24];
-
-        function getProductImageUrl(product) {
-            const file = product.image || '';
-            if (!file) return null;
-            if (String(file).startsWith('/')) return file;
-            return `/uploads/products/${file}`;
-        }
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', async function() {
@@ -383,7 +368,7 @@
 
             let html = '';
             pageProducts.forEach(product => {
-                const imageUrl = getProductImageUrl(product);
+                const imageUrl = Utils.getProductImageUrl(product.image);
                 const actionBtn = isAdmin
                     ? `<a href="/admin/products" class="btn btn-primary-modern btn-sm"><i class="fas fa-pen me-1"></i> Edit</a>`
                     : `<button class="btn btn-primary-modern btn-sm" onclick="addToCart(${product.id})"><i class="fas fa-plus me-1"></i> Add Order</button>`;
@@ -403,7 +388,7 @@
                                 </p>
                                 <div class="d-flex justify-content-between align-items-center mb-3 mt-auto">
                                     <span style="color: var(--primary-dark); font-weight: 700; font-size: 1.3rem;">
-                                        $${parseFloat(product.price).toFixed(2)}
+                                        EGP ${parseFloat(product.price).toFixed(2)}
                                     </span>
                                     <button class="wishlist-btn" onclick="toggleWishlist(${product.id}, this)" title="Add to wishlist">
                                         <i class="far fa-heart"></i>

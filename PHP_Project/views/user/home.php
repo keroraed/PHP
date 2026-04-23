@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Cafeteria Manager - Your Perfect Coffee Moment</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="/css/modern.css" rel="stylesheet">
-</head>
-<body>
+<?php
+$pageTitle = 'Your Perfect Coffee Moment';
+include __DIR__ . '/../layouts/head.php';
+?>
     <?php include __DIR__ . '/../components/navbar.php'; ?>
 
     <!-- Hero Section -->
@@ -75,7 +68,7 @@
     <!-- Featured Products Section -->
     <section class="featured-section featured-enhanced">
         <div class="featured-bg"></div>
-        <div class="container" style="position: relative; z-index: 2;">
+        <div class="container">
             <h2 class="section-title fade-in">Featured Products</h2>
             <p class="text-center text-muted mb-5 fade-in" style="animation-delay: 0.2s;">Hand-picked selection of our finest items</p>
             
@@ -112,7 +105,7 @@
     <!-- Features Section -->
     <section class="features-section features-enhanced py-5">
         <div class="features-bg"></div>
-        <div class="container" style="position: relative; z-index: 2;">
+        <div class="container">
             <div class="row features-row">
                 <div class="col-md-4 mb-4">
                     <div class="card-modern hover-lift feature-card">
@@ -121,7 +114,7 @@
                             <div class="feature-icon-wrapper">
                                 <i class="fas fa-shipping-fast"></i>
                             </div>
-                            <h5 style="color: var(--text-dark);">Fast Delivery</h5>
+                            <h5 class="fw-bold">Fast Delivery</h5>
                             <p class="text-muted">Quick and reliable order fulfillment</p>
                         </div>
                     </div>
@@ -133,7 +126,7 @@
                             <div class="feature-icon-wrapper">
                                 <i class="fas fa-leaf"></i>
                             </div>
-                            <h5 style="color: var(--text-dark);">Fresh Quality</h5>
+                            <h5 class="fw-bold">Fresh Quality</h5>
                             <p class="text-muted">Only the freshest ingredients used</p>
                         </div>
                     </div>
@@ -145,7 +138,7 @@
                             <div class="feature-icon-wrapper">
                                 <i class="fas fa-headset"></i>
                             </div>
-                            <h5 style="color: var(--text-dark);">24/7 Support</h5>
+                            <h5 class="fw-bold">24/7 Support</h5>
                             <p class="text-muted">Always here to help you out</p>
                         </div>
                     </div>
@@ -168,8 +161,7 @@
     <?php include __DIR__ . '/../components/footer.php'; ?>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/app.js"></script>
+    <?php include __DIR__ . '/../layouts/scripts.php'; ?>
     
     <script>
         // Counter animation for stats
@@ -228,13 +220,6 @@
 
         const isAdmin = <?php echo (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') ? 'true' : 'false'; ?>;
 
-        function getProductImageUrl(product) {
-            const file = product.image || '';
-            if (!file) return null;
-            if (String(file).startsWith('/')) return file;
-            return `/uploads/products/${file}`;
-        }
-
         // Load featured products on page load
         document.addEventListener('DOMContentLoaded', async function() {
             await loadFeaturedProducts();
@@ -257,7 +242,7 @@
 
                     let html = '';
                     products.forEach(product => {
-                        const imageUrl = getProductImageUrl(product);
+                        const imageUrl = Utils.getProductImageUrl(product.image);
                         const actionBtn = isAdmin
                             ? `<a href="/admin/products" class="btn btn-primary-modern btn-sm"><i class="fas fa-pen"></i></a>`
                             : `<button class="btn btn-primary-modern btn-sm" onclick="addToCart(${product.id})"><i class="fas fa-plus"></i></button>`;
@@ -267,19 +252,17 @@
                             <div class="col-md-4 col-sm-6 mb-4">
                                 <div class="card-modern product-card-featured hover-lift">
                                     <div class="card-body-modern">
-                                        <div class="text-center mb-3" style="font-size: 4rem; min-height: 120px; display: flex; align-items: center; justify-content: center;">
+                                        <div class="text-center mb-3 product-img-container">
                                             ${imageUrl
-                                                ? `<img src="${imageUrl}" alt="${product.name}" style="max-height:120px;max-width:100%;object-fit:contain;border-radius:10px;">`
-                                                : `<i class="fas fa-coffee" style="color: var(--primary-dark);"></i>`}
+                                                ? `<img src="${imageUrl}" alt="${product.name}" class="product-img-thumb">`
+                                                : `<i class="fas fa-coffee product-img-placeholder-icon"></i>`}
                                         </div>
-                                        <h5 style="color: var(--text-dark); margin-bottom: 0.5rem;">${product.name}</h5>
-                                        <p class="text-muted text-truncate-2" style="font-size: 0.9rem; margin-bottom: 1rem;">
+                                        <h5 class="product-card-title">${product.name}</h5>
+                                        <p class="text-muted text-truncate-2 product-card-desc">
                                             ${product.description || 'Premium product from our collection'}
                                         </p>
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <span style="color: var(--primary-dark); font-weight: 700; font-size: 1.3rem;">
-                                                $${parseFloat(product.price).toFixed(2)}
-                                            </span>
+                                            <span class="product-card-price">EGP ${parseFloat(product.price).toFixed(2)}</span>
                                             ${actionBtn}
                                         </div>
                                         <div class="mt-3">
@@ -328,11 +311,11 @@
                         html += `
                             <div class="col-md-3 col-sm-6 mb-4 category-item-animated">
                                 <a href="/products?category=${category.id}" class="text-decoration-none">
-                                    <div class="card-modern hover-lift category-card" style="text-align: center; padding: 2rem; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                        <div class="mb-3">
-                                            <i class="fas ${icon} fa-3x" style="color: var(--primary-dark);"></i>
+                                    <div class="card-modern hover-lift category-card">
+                                        <div class="mb-3 category-card-icon">
+                                            <i class="fas ${icon} fa-3x"></i>
                                         </div>
-                                        <h6 style="color: var(--text-dark); margin-bottom: 0.5rem;">${category.name}</h6>
+                                        <h6>${category.name}</h6>
                                         <p class="text-muted small mb-0">${category.description || 'Browse items'}</p>
                                     </div>
                                 </a>
@@ -358,39 +341,5 @@
             }
         }
     </script>
-
-    <style>
-        .stat-item {
-            text-align: center;
-            margin-top: 2rem;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary-dark);
-            display: block;
-        }
-
-        .stat-label {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-top: 0.5rem;
-        }
-
-        .featured-section {
-            padding: 80px 0;
-            background: var(--bg-light);
-            position: relative;
-        }
-
-        .featured-section h2 {
-            font-size: 3rem;
-            text-align: center;
-            margin-bottom: 1rem;
-            font-weight: 800;
-            color: var(--primary-dark);
-        }
-    </style>
 </body>
 </html>

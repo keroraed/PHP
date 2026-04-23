@@ -207,13 +207,19 @@ window.SkeletonLoader = SkeletonLoader;
  */
 window.Utils = {
     /**
-     * Format currency
+     * Format currency in EGP
      */
     formatCurrency(amount) {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(amount);
+        return `EGP ${parseFloat(amount).toFixed(2)}`;
+    },
+
+    /**
+     * Get full image URL for a product image filename.
+     * Handles: null/empty → null, absolute paths → as-is, relative → /uploads/products/{file}
+     */
+    getProductImageUrl(image) {
+        if (!image) return null;
+        return String(image).startsWith('/') ? image : `/uploads/products/${image}`;
     },
 
     /**
