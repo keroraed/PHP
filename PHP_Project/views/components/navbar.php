@@ -31,6 +31,7 @@
                     <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-chart-line"></i><span class="d-lg-none ms-2">Dashboard</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="/admin/products"><i class="fas fa-boxes"></i><span class="d-lg-none ms-2">Products</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="/admin/orders"><i class="fas fa-clipboard-list"></i><span class="d-lg-none ms-2">Orders</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admin/messages"><i class="fas fa-inbox"></i><span class="d-lg-none ms-2">Messages</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="/admin/users"><i class="fas fa-users"></i><span class="d-lg-none ms-2">Users</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i><span class="d-lg-none ms-2">Logout</span></a></li>
                 <?php else: ?>
@@ -59,7 +60,7 @@
 </nav>
 
 <style>
-    /* Navbar styling */
+    
     .navbar-modern {
         background: var(--bg-white) !important;
         border-bottom: 1px solid #e8e0d5;
@@ -74,7 +75,7 @@
         letter-spacing: -0.5px;
     }
     
-    /* Link hover effects */
+    
     .navbar-nav .nav-link {
         color: var(--text-dark) !important;
         font-weight: 500;
@@ -89,14 +90,13 @@
         color: var(--primary-accent) !important;
     }
     
-    /* Button styling */
+    
     .navbar-nav .btn-primary-modern {
         border-radius: 8px;
         font-weight: 600;
     }
     
-    /* Dark mode toggle */
-    #darkModeToggle {
+    
         color: var(--text-dark) !important;
         font-size: 1.1rem;
         display: flex;
@@ -104,11 +104,10 @@
         justify-content: center;
     }
     
-    #darkModeToggle:hover {
         color: var(--primary-accent) !important;
     }
     
-    /* Responsive adjustments */
+    
     @media (max-width: 991px) {
         .navbar-nav {
             margin-top: 1rem;

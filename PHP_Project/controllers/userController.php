@@ -39,7 +39,6 @@ class UserController extends Controller
             ];
         }
 
-        // Unset sensitive data
         unset($user['password']);
         
         return [
@@ -50,14 +49,11 @@ class UserController extends Controller
         ];
     }
 
-    /**
-     * Create new user (registration)
-     */
+    
     public function store()
     {
         $data = $_POST;
 
-        // Validate input
         if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
             return [
                 'success' => false,
@@ -66,7 +62,6 @@ class UserController extends Controller
             ];
         }
 
-        // Check if email already exists
         $existingUser = $this->model->findOneBy('email', $data['email']);
         if ($existingUser) {
             return [
@@ -76,7 +71,6 @@ class UserController extends Controller
             ];
         }
 
-        // Prepare user data
         $userData = [
             'name' => trim($data['name']),
             'email' => trim($data['email']),
@@ -88,7 +82,6 @@ class UserController extends Controller
             'created_at' => date('Y-m-d H:i:s')
         ];
 
-        // Insert user
         $result = $this->model->insert($userData);
 
         if ($result) {
@@ -125,17 +118,14 @@ class UserController extends Controller
             return false;
         }
 
-        // Create uploads directory if it doesn't exist
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
 
-        // Generate unique filename
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
         $filename = time() . '_' . uniqid() . '.' . $ext;
         $filepath = $uploadDir . $filename;
 
-        // Move uploaded file
         if (move_uploaded_file($file['tmp_name'], $filepath)) {
             return '/uploads/users/' . $filename;
         }
@@ -143,12 +133,9 @@ class UserController extends Controller
         return false;
     }
 
-    /**
-     * Update user information
-     */
+    
     public function update($id)
     {
-        // Check if user exists
         $user = $this->model->getById($id);
         if (!$user) {
             return [
@@ -158,7 +145,6 @@ class UserController extends Controller
             ];
         }
 
-        // Check authorization
         if ($this->getUserId() != $id && !$this->hasRole('admin')) {
             return [
                 'success' => false,
@@ -169,7 +155,6 @@ class UserController extends Controller
 
         $data = $_POST;
 
-        // Build update data
         $updateData = [];
         
         if (!empty($data['name'])) {
@@ -188,7 +173,6 @@ class UserController extends Controller
             $updateData['building'] = $data['building'];
         }
 
-        // Handle password update
         if (!empty($data['password'])) {
             if (strlen($data['password']) < 6) {
                 return [
@@ -200,7 +184,6 @@ class UserController extends Controller
             $updateData['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         }
 
-        // Handle role update (admin only)
         if (!empty($data['role']) && $this->hasRole('admin')) {
             $updateData['role'] = $data['role'];
         }
@@ -215,7 +198,6 @@ class UserController extends Controller
 
         $updateData['updated_at'] = date('Y-m-d H:i:s');
 
-        // Update user
         $sql = "UPDATE users SET ";
         $params = [];
         $setParts = [];
@@ -245,9 +227,7 @@ class UserController extends Controller
         ];
     }
 
-    /**
-     * Delete user (admin only)
-     */
+    
     public function delete($id)
     {
         $this->requireRole('admin');
@@ -278,9 +258,7 @@ class UserController extends Controller
         ];
     }
 
-    /**
-     * User profile (current logged-in user)
-     */
+    
     public function profile()
     {
         $this->requireAuth();
@@ -306,9 +284,7 @@ class UserController extends Controller
         ];
     }
 
-    /**
-     * Search users by name or email
-     */
+    
     public function search()
     {
         $this->requireRole('admin');

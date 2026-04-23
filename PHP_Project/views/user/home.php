@@ -20,7 +20,7 @@ include __DIR__ . '/../layouts/head.php';
                     </a>
                     <?php if (!isset($_SESSION['user_id'])): ?>
                     <a href="/register" class="btn btn-light-accent btn-lg">
-                        <i class="fas fa-user-plus me-2"></i>Create Account
+                        <i class="fas fa-user-shield me-2"></i>Contact Admin
                     </a>
                     <?php else: ?>
                     <a href="/orders" class="btn btn-light-accent btn-lg">
@@ -164,7 +164,6 @@ include __DIR__ . '/../layouts/head.php';
     <?php include __DIR__ . '/../layouts/scripts.php'; ?>
     
     <script>
-        // Counter animation for stats
         function animateCounters() {
             const counters = document.querySelectorAll('.counter');
             counters.forEach(counter => {
@@ -182,7 +181,6 @@ include __DIR__ . '/../layouts/head.php';
                     }
                 };
                 
-                // Start animation when element is in view
                 const observer = new IntersectionObserver((entries) => {
                     if (entries[0].isIntersecting && !counter.dataset.animated) {
                         counter.dataset.animated = 'true';
@@ -193,7 +191,6 @@ include __DIR__ . '/../layouts/head.php';
             });
         }
 
-        // Parallax effect on hero
         window.addEventListener('scroll', () => {
             const hero = document.querySelector('.hero-enhanced');
             if (hero) {
@@ -203,11 +200,9 @@ include __DIR__ . '/../layouts/head.php';
             }
         });
 
-        // Initialize animations on page load
         document.addEventListener('DOMContentLoaded', () => {
             animateCounters();
             
-            // Add fade-in animation to category items when they load
             setTimeout(() => {
                 const categoryItems = document.querySelectorAll('.category-row > div, .category-item-animated');
                 categoryItems.forEach((item, index) => {
@@ -220,7 +215,6 @@ include __DIR__ . '/../layouts/head.php';
 
         const isAdmin = <?php echo (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') ? 'true' : 'false'; ?>;
 
-        // Load featured products on page load
         document.addEventListener('DOMContentLoaded', async function() {
             await loadFeaturedProducts();
             await loadCategories();
@@ -289,7 +283,6 @@ include __DIR__ . '/../layouts/head.php';
         async function loadCategories() {
             const container = document.getElementById('categorySection');
             
-            // Show loading state
             container.innerHTML = '<div class="col-12 text-center py-4"><div class="spinner-border text-primary spinner-sm"></div></div>';
             
             try {
@@ -325,7 +318,6 @@ include __DIR__ . '/../layouts/head.php';
 
                     container.innerHTML = html;
                     
-                    // Add animations to newly loaded items
                     const items = container.querySelectorAll('.category-item-animated');
                     items.forEach((item, idx) => {
                         item.style.opacity = '0';

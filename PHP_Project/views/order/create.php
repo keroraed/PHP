@@ -48,6 +48,13 @@ include __DIR__ . '/../layouts/head.php';
                             </div>
                             <?php endif; ?>
 
+                            <div class="mb-3">
+                                <label class="form-label-modern">🏢 In-Company Delivery</label>
+                                <div id="deliveryDetailsBox" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; background: rgba(0,0,0,0.2);">
+                                    <p class="text-muted mb-0">Loading delivery details...</p>
+                                </div>
+                            </div>
+
                             <!-- Total Section -->
                             <div style="background: linear-gradient(135deg, rgba(212,165,116,0.1) 0%, rgba(139,111,71,0.1) 100%); border: 1px solid var(--primary-color); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                                 <div class="mb-2 d-flex justify-content-between">
@@ -138,7 +145,69 @@ include __DIR__ . '/../layouts/head.php';
     <script>
         let products = [];
         let selectedItems = {};
+        const usersById = {};
+        let selectedDeliveryDetails = null;
         const TAX_RATE = 0.14; // 14% tax
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (m) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[m]));
+        }
+
+        function buildDeliveryLine(details) {
+            if (!details) return '';
+            const building = details.building || 'N/A';
+            const room = details.room_no || 'N/A';
+            const ext = details.ext || 'N/A';
+            return `Delivery: Building ${building}, Room ${room}, Ext ${ext}`;
+        }
+
+        function renderDeliveryDetails(details) {
+            const box = document.getElementById('deliveryDetailsBox');
+            if (!box) return;
+
+            if (!details) {
+                box.innerHTML = '<p class="text-muted mb-0">No delivery details available yet</p>';
+                return;
+            }
+
+            box.innerHTML = `
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Building:</span>
+                    <strong>${escapeHtml(details.building || 'N/A')}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Room:</span>
+                    <strong>${escapeHtml(details.room_no || 'N/A')}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-0">
+                    <span class="text-muted">Extension:</span>
+                    <strong>${escapeHtml(details.ext || 'N/A')}</strong>
+                </div>
+            `;
+        }
+
+        async function loadCurrentUserDelivery() {
+            try {
+                const response = await fetch('/api/me');
+                const data = await response.json();
+
+                if (data.success) {
+                    selectedDeliveryDetails = data.data;
+                    renderDeliveryDetails(selectedDeliveryDetails);
+                } else {
+                    renderDeliveryDetails(null);
+                }
+            } catch (error) {
+                console.error('Error loading current user delivery details:', error);
+                renderDeliveryDetails(null);
+            }
+        }
 
         async function loadProducts() {
             try {
@@ -162,9 +231,9 @@ include __DIR__ . '/../layouts/head.php';
                 
                 if (data.success) {
                     const userSelect = document.getElementById('userId');
-                    const currentUser = <?php echo $_SESSION['user_id'] ?? 'null'; ?>;
                     
                     data.data.forEach(user => {
+                        usersById[user.id] = user;
                         const option = document.createElement('option');
                         option.value = user.id;
                         option.textContent = `${user.name} (Room ${user.room_no})`;
@@ -177,7 +246,6 @@ include __DIR__ . '/../layouts/head.php';
             <?php endif; ?>
         }
 
-        // Pending item for confirmation
         let pendingItem = null;
 
         function displayProducts(productsToShow) {
@@ -215,7 +283,6 @@ include __DIR__ . '/../layouts/head.php';
             const product = products.find(p => p.id === productId);
             const newQuantity = (parseInt(input.value) || 0) + 1;
             
-            // Store pending item and show confirmation modal
             pendingItem = {
                 productId: productId,
                 newQuantity: newQuantity,
@@ -224,12 +291,10 @@ include __DIR__ . '/../layouts/head.php';
                 inputElement: input
             };
             
-            // Update modal content
             document.getElementById('confirmItemName').textContent = product.name;
             document.getElementById('confirmItemPrice').textContent = parseFloat(product.price).toFixed(2);
             document.getElementById('confirmItemQty').textContent = newQuantity;
             
-            // Show modal
             const modal = new bootstrap.Modal(document.getElementById('confirmAddModal'));
             modal.show();
         }
@@ -241,7 +306,6 @@ include __DIR__ . '/../layouts/head.php';
             if (current > 0) {
                 input.value = current - 1;
                 if (input.value === '0') {
-                    // Show confirmation for removal
                     pendingItem = {
                         productId: productId,
                         newQuantity: 0,
@@ -251,16 +315,13 @@ include __DIR__ . '/../layouts/head.php';
                         isRemoval: true
                     };
                     
-                    // Update modal for removal confirmation
                     document.getElementById('confirmItemName').textContent = product.name;
                     document.getElementById('confirmItemPrice').textContent = parseFloat(product.price).toFixed(2);
                     document.getElementById('confirmItemQty').textContent = '0';
                     
-                    // Change modal title for removal
                     const modalTitle = document.getElementById('confirmAddModalLabel');
                     modalTitle.innerHTML = '<i class="fas fa-trash-alt" style="color: #dc3545;"></i> Confirm Item Removal';
                     
-                    // Show modal
                     const modal = new bootstrap.Modal(document.getElementById('confirmAddModal'));
                     modal.show();
                 } else {
@@ -275,10 +336,8 @@ include __DIR__ . '/../layouts/head.php';
                 const isRemoval = pendingItem.isRemoval || false;
                 
                 if (isRemoval) {
-                    // For removal, set quantity to 0
                     delete selectedItems[pendingItem.productId];
                 } else {
-                    // For add, update the input and item
                     const input = document.getElementById(`qty-${pendingItem.productId}`);
                     if (input) {
                         input.value = pendingItem.newQuantity;
@@ -286,11 +345,9 @@ include __DIR__ . '/../layouts/head.php';
                     updateItem(pendingItem.productId, pendingItem.price);
                 }
                 
-                // Close the modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('confirmAddModal'));
                 modal.hide();
                 
-                // Reset modal title and button for next use
                 const modalTitle = document.getElementById('confirmAddModalLabel');
                 modalTitle.innerHTML = '<i class="fas fa-question-circle" style="color: var(--primary-accent);"></i> Confirm Item Addition';
                 
@@ -298,17 +355,14 @@ include __DIR__ . '/../layouts/head.php';
                 confirmBtn.innerHTML = '<i class="fas fa-check me-2"></i> Confirm';
                 confirmBtn.style.background = '';
                 
-                // Update selected items display
                 updateSelectedItems();
                 
-                // Show appropriate toast
                 if (isRemoval) {
                     window.toast.success(`${itemName} removed from order!`, 'Removed');
                 } else {
                     window.toast.success(`${itemName} added to order!`, 'Added');
                 }
                 
-                // Reset pending item
                 pendingItem = null;
             }
         }
@@ -319,7 +373,6 @@ include __DIR__ . '/../layouts/head.php';
             
             if (!item) return;
             
-            // Show confirmation for removal
             pendingItem = {
                 productId: productId,
                 newQuantity: 0,
@@ -328,21 +381,17 @@ include __DIR__ . '/../layouts/head.php';
                 isRemoval: true
             };
             
-            // Update modal for removal confirmation
             document.getElementById('confirmItemName').textContent = item.name;
             document.getElementById('confirmItemPrice').textContent = item.price.toFixed(2);
             document.getElementById('confirmItemQty').textContent = '0';
             
-            // Change modal title for removal
             const modalTitle = document.getElementById('confirmAddModalLabel');
             modalTitle.innerHTML = '<i class="fas fa-trash-alt" style="color: #dc3545;"></i> Confirm Item Removal';
             
-            // Change button text and color for removal
             const confirmBtn = document.querySelector('#confirmAddModal .modal-footer .btn-primary-modern');
             confirmBtn.innerHTML = '<i class="fas fa-trash-alt me-2"></i> Remove';
             confirmBtn.style.background = '#dc3545';
             
-            // Show modal
             const modal = new bootstrap.Modal(document.getElementById('confirmAddModal'));
             modal.show();
         }
@@ -431,7 +480,10 @@ include __DIR__ . '/../layouts/head.php';
 
             const payload = {
                 userId: <?php echo isset($_SESSION['role']) && $_SESSION['role'] === 'admin' ? '(document.getElementById("userId")?.value || null)' : ($_SESSION['user_id'] ?? 'null'); ?>,
-                notes: document.getElementById('notes')?.value || '',
+                notes: [
+                    document.getElementById('notes')?.value || '',
+                    buildDeliveryLine(selectedDeliveryDetails)
+                ].filter(Boolean).join('\n'),
                 subtotal: Number(subtotal.toFixed(2)),
                 tax: Number((subtotal * TAX_RATE).toFixed(2)),
                 total: Number(total.toFixed(2)),
@@ -471,7 +523,6 @@ include __DIR__ . '/../layouts/head.php';
             }
         });
 
-        // Search functionality
         document.getElementById('searchProducts').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
             const filtered = products.filter(p => 
@@ -481,10 +532,23 @@ include __DIR__ . '/../layouts/head.php';
             displayProducts(filtered);
         });
 
-        // Load data on page load
         document.addEventListener('DOMContentLoaded', () => {
             loadProducts();
             loadUsers();
+
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            const userSelect = document.getElementById('userId');
+            if (userSelect) {
+                userSelect.addEventListener('change', () => {
+                    const selectedId = userSelect.value;
+                    selectedDeliveryDetails = selectedId ? (usersById[selectedId] || null) : null;
+                    renderDeliveryDetails(selectedDeliveryDetails);
+                });
+            }
+            renderDeliveryDetails(null);
+            <?php else: ?>
+            loadCurrentUserDelivery();
+            <?php endif; ?>
         });
     </script>
 </body>

@@ -1,16 +1,14 @@
--- Create database if not exists
 CREATE DATABASE IF NOT EXISTS PHP_Project;
 USE PHP_Project;
 
--- Drop tables in correct order (reverse of creation)
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS contact_messages;
 DROP TABLE IF EXISTS users;
 
 
--- Users table
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
@@ -25,7 +23,19 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Categories table
+CREATE TABLE contact_messages (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(50) DEFAULT NULL,
+    subject VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_contact_messages_is_read (is_read),
+    INDEX idx_contact_messages_created_at (created_at)
+);
+
 CREATE TABLE categories (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
@@ -33,7 +43,6 @@ CREATE TABLE categories (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Products table
 CREATE TABLE products (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
@@ -47,7 +56,6 @@ CREATE TABLE products (
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
 
--- Orders table
 CREATE TABLE orders (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -61,7 +69,6 @@ CREATE TABLE orders (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Order Items table
 CREATE TABLE order_items (
     id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
@@ -73,13 +80,11 @@ CREATE TABLE order_items (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
--- Insert sample categories
 INSERT INTO categories (name, description) VALUES
 ('Coffee', 'Various coffee beverages'),
 ('Tea', 'Tea and herbal drinks'),
 ('Snacks', 'Pastries and light snacks');
 
--- Insert sample products
 INSERT INTO products (name, description, price, category_id, quantity) VALUES
 ('Espresso', 'Strong Italian espresso', 2.50, 1, 100),
 ('Cappuccino', 'Creamy cappuccino with foam', 3.50, 1, 100),
@@ -90,10 +95,8 @@ INSERT INTO products (name, description, price, category_id, quantity) VALUES
 ('Muffin', 'Chocolate muffin', 2.50, 3, 50),
 ('Sandwich', 'Chicken sandwich', 5.00, 3, 40);
 
--- Insert sample admin user (password: admin123)
 INSERT INTO users (name, email, password, room_no, ext, building, role) VALUES
 ('Admin User', 'admin@example.com', '$2y$10$slYQmyNdGzin7olVN3YO2OPST9/PgBkqquzi.Ss7KIUgO2t0jKMm2', '101', '5000', 'A', 'admin');
 
--- Insert sample regular user (password: user123)
 INSERT INTO users (name, email, password, room_no, ext, building, role) VALUES
 ('John Doe', 'john@example.com', '$2y$10$slYQmyNdGzin7olVN3YO2OPST9/PgBkqquzi.Ss7KIUgO2t0jKMm2', '201', '5001', 'B', 'user');

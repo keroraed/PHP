@@ -2,9 +2,7 @@
 require_once __DIR__ . '/../config/dp.php';
 class Category extends Service {
 
-    /**
-     * Get all categories (returns array)
-     */
+    
     public function getAll() {
         $result = $this->getAllCategories();
         return $result->fetchAll(PDO::FETCH_ASSOC);

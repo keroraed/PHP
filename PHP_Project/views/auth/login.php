@@ -45,7 +45,7 @@ include __DIR__ . '/../layouts/head.php';
             </form>
 
             <div class="login-footer mt-3">
-                Don't have an account? <a href="/register">Create one</a>
+                Need an account? <a href="/register">Contact admin</a>
             </div>
         </div>
     </div>

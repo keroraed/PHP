@@ -1,12 +1,6 @@
 <?php
-/**
- * API Routes
- * RESTful API endpoints for data operations (JSON responses)
- */
 
-// ============================================================
-// CATEGORIES API
-// ============================================================
+
 
 $router->get('/api/categories', function() {
     require_once 'models/category.php';
@@ -42,9 +36,6 @@ $router->post('/api/categories', function() {
     ];
 });
 
-// ============================================================
-// PRODUCTS API
-// ============================================================
 
 $router->get('/api/products', function() {
     require_once 'models/products.php';
@@ -103,9 +94,6 @@ $router->delete('/api/products/{id}', function($id) {
     return $controller->delete($id);
 });
 
-// ============================================================
-// USERS API
-// ============================================================
 
 $router->get('/api/users', function() {
     require_once 'models/users.php';
@@ -193,7 +181,6 @@ $router->put('/api/users/{id}', function($id) {
         return ['success' => false, 'message' => 'Invalid JSON payload', 'code' => 400];
     }
 
-    // Only keep allowed fields
     $allowed = ['name', 'email', 'room_no', 'ext', 'building', 'role', 'profile_picture'];
     $data = array_intersect_key($input, array_flip($allowed));
 
@@ -240,9 +227,38 @@ $router->get('/api/users/search/{q}', function($q) {
     return ['success' => true, 'data' => $users, 'code' => 200];
 });
 
-// ============================================================
-// ORDERS API
-// ============================================================
+$router->get('/api/admin/messages', function() {
+    if (($_SESSION['role'] ?? null) !== 'admin') {
+        return ['success' => false, 'message' => 'Unauthorized', 'code' => 403];
+    }
+
+    require_once 'models/contactMessage.php';
+    $messageModel = new ContactMessage();
+    $messages = $messageModel->getAll();
+
+    return ['success' => true, 'data' => $messages, 'code' => 200];
+});
+
+$router->post('/api/admin/messages/{id}/read', function($id) {
+    if (($_SESSION['role'] ?? null) !== 'admin') {
+        return ['success' => false, 'message' => 'Unauthorized', 'code' => 403];
+    }
+
+    if ((int)$id <= 0) {
+        return ['success' => false, 'message' => 'Invalid message ID', 'code' => 400];
+    }
+
+    require_once 'models/contactMessage.php';
+    $messageModel = new ContactMessage();
+    $result = $messageModel->markAsRead($id);
+
+    return [
+        'success' => $result,
+        'message' => $result ? 'Message marked as read' : 'Message not found',
+        'code' => $result ? 200 : 404
+    ];
+});
+
 
 $router->get('/api/orders', function() {
     if (!isset($_SESSION['user_id'])) {
@@ -308,7 +324,6 @@ $router->post('/api/orders/create', function() {
     
     $orderId = $orderModel->connection->lastInsertId();
     
-    // Add items to order
     foreach ($input['items'] as $item) {
         $orderModel->addItem($orderId, $item['id'], $item['quantity'], $item['price']);
     }
@@ -355,7 +370,6 @@ $router->delete('/api/orders/{id}', function($id) {
     ];
 });
 
-// Admin only: Get all orders
 $router->get('/api/orders/all', function() {
     if (($_SESSION['role'] ?? null) !== 'admin') {
         return ['success' => false, 'message' => 'Unauthorized', 'code' => 403];
@@ -368,7 +382,6 @@ $router->get('/api/orders/all', function() {
     return ['success' => true, 'data' => $orders, 'code' => 200];
 });
 
-// Admin only: Update order status
 $router->post('/api/orders/{id}/status', function($id) {
     if (($_SESSION['role'] ?? null) !== 'admin') {
         return ['success' => false, 'message' => 'Unauthorized', 'code' => 403];
@@ -387,7 +400,6 @@ $router->post('/api/orders/{id}/status', function($id) {
     ];
 });
 
-// Cancel order (admin can cancel any; user can cancel own order)
 $router->post('/api/orders/{id}/cancel', function($id) {
     if (!isset($_SESSION['user_id'])) {
         return ['success' => false, 'message' => 'Unauthorized', 'code' => 401];
@@ -420,13 +432,8 @@ $router->post('/api/orders/{id}/cancel', function($id) {
         'code' => $result ? 200 : 500
     ];
 });
-// ============================================================
-// WISHLIST API (Client-side for now, stored in localStorage)
-// ============================================================
 
 $router->post('/api/wishlist/{id}', function($id) {
-    // This is handled client-side with localStorage
-    // But server can implement this for persistence
     return [
         'success' => true,
         'message' => 'Wishlist updated',
@@ -435,7 +442,6 @@ $router->post('/api/wishlist/{id}', function($id) {
 });
 
 $router->get('/api/wishlist', function() {
-    // Return user's wishlist
     if (!isset($_SESSION['user_id'])) {
         return [
             'success' => false,
@@ -452,13 +458,8 @@ $router->get('/api/wishlist', function() {
     ];
 });
 
-// ============================================================
-// CART API (Client-side for now, stored in localStorage)
-// ============================================================
 
 $router->post('/api/cart/add', function() {
-    // This is handled client-side with localStorage
-    // Validate request
     $productId = $_POST['product_id'] ?? null;
     $quantity = $_POST['quantity'] ?? 1;
     
@@ -478,8 +479,6 @@ $router->post('/api/cart/add', function() {
 });
 
 $router->get('/api/cart', function() {
-    // Return user's cart
-    // This is handled client-side with localStorage
     return [
         'success' => true,
         'data' => [],

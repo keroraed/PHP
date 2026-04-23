@@ -43,9 +43,7 @@ class Product extends Service {
         return $stmt->execute([$id]);
     }
     
-    /**
-     * Search products by name
-     */
+    
     public function search($keyword) {
         $keyword = '%' . $keyword . '%';
         $stmt = $this->connection->prepare("SELECT * FROM products WHERE name LIKE ? OR description LIKE ?");

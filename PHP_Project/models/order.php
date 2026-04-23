@@ -7,9 +7,7 @@ class Order extends Service {
         return $this->connection->query("SELECT * FROM orders ORDER BY created_at DESC");
     }
 
-    /**
-     * Get all orders with user and item details
-     */
+    
     public function getAll() {
         $stmt = $this->connection->prepare(
             "SELECT o.*, u.name AS user_name, u.email AS user_email
@@ -77,33 +75,25 @@ class Order extends Service {
         return $stmt->execute($values);
     }
 
-    /**
-     * Generic update alias for API compatibility
-     */
+    
     public function update($id, $data) {
         return $this->updateOrder($id, $data);
     }
 
     public function deleteOrder($id) {
-        // Delete order items first
         $stmt = $this->connection->prepare("DELETE FROM order_items WHERE order_id = ?");
         $stmt->execute([$id]);
         
-        // Then delete order
         $stmt = $this->connection->prepare("DELETE FROM orders WHERE id = ?");
         return $stmt->execute([$id]);
     }
 
-    /**
-     * Generic delete alias for API compatibility
-     */
+    
     public function delete($id) {
         return $this->deleteOrder($id);
     }
 
-    /**
-     * Update order status
-     */
+    
     public function updateStatus($id, $status) {
         if (!$status) {
             return false;
@@ -115,9 +105,7 @@ class Order extends Service {
         return $stmt->execute([$status, $id]);
     }
 
-    /**
-     * Add item to order
-     */
+    
     public function addItem($orderId, $productId, $quantity, $price) {
         $stmt = $this->connection->prepare(
             "INSERT INTO order_items (order_id, product_id, quantity, price, created_at) 
@@ -126,9 +114,7 @@ class Order extends Service {
         return $stmt->execute([$orderId, $productId, $quantity, $price]);
     }
 
-    /**
-     * Get items for an order
-     */
+    
     public function getOrderItems($orderId) {
         $stmt = $this->connection->prepare(
             "SELECT oi.*, p.name, p.description FROM order_items oi 
@@ -139,9 +125,7 @@ class Order extends Service {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Remove item from order
-     */
+    
     public function removeItem($itemId) {
         $stmt = $this->connection->prepare("DELETE FROM order_items WHERE id = ?");
         return $stmt->execute([$itemId]);

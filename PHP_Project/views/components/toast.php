@@ -1,9 +1,5 @@
 <?php
-/**
- * Toast Notifications Component
- * Reusable toast notification system for user feedback
- * Shows success, error, warning, and info messages
- */
+
 ?>
 
 <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
@@ -11,16 +7,10 @@
 </div>
 
 <script>
-/**
- * Show a toast notification
- * @param {string} message - The message to display
- * @param {string} type - Type of toast: 'success', 'error', 'warning', 'info'
- * @param {number} duration - How long to show the toast in milliseconds (default: 4000)
- */
+
 function showToast(message, type = 'info', duration = 4000) {
     const container = document.getElementById('toast-container');
     
-    // Determine colors based on type
     const typeConfig = {
         'success': { bg: '#28a745', icon: 'fa-check-circle' },
         'error': { bg: '#dc3545', icon: 'fa-exclamation-circle' },
@@ -30,7 +20,6 @@ function showToast(message, type = 'info', duration = 4000) {
     
     const config = typeConfig[type] || typeConfig['info'];
     
-    // Create toast element
     const toastId = 'toast-' + Date.now();
     const toastHTML = `
         <div id="${toastId}" class="toast align-items-center border-0" 
@@ -49,20 +38,16 @@ function showToast(message, type = 'info', duration = 4000) {
     
     container.insertAdjacentHTML('beforeend', toastHTML);
     
-    // Initialize and show bootstrap toast
     const toastElement = document.getElementById(toastId);
     const bsToast = new bootstrap.Toast(toastElement, { delay: duration });
     bsToast.show();
     
-    // Remove toast from DOM after it's hidden
     toastElement.addEventListener('hidden.bs.toast', function() {
         toastElement.remove();
     });
 }
 
-/**
- * Convenience functions for different toast types
- */
+
 const Toast = {
     success: (msg, duration = 3000) => showToast(msg, 'success', duration),
     error: (msg, duration = 4000) => showToast(msg, 'error', duration),
@@ -70,26 +55,21 @@ const Toast = {
     info: (msg, duration = 3000) => showToast(msg, 'info', duration)
 };
 
-// Show any PHP messages if present
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     
-    // Check for success message
     if (urlParams.has('success')) {
         Toast.success(urlParams.get('success'));
     }
     
-    // Check for error message
     if (urlParams.has('error')) {
         Toast.error(urlParams.get('error'));
     }
     
-    // Check for warning message
     if (urlParams.has('warning')) {
         Toast.warning(urlParams.get('warning'));
     }
     
-    // Check for info message
     if (urlParams.has('info')) {
         Toast.info(urlParams.get('info'));
     }
@@ -97,7 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-    #toast-container {
         gap: 12px;
         display: flex;
         flex-direction: column;
@@ -118,9 +97,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    /* Mobile responsiveness */
+    
     @media (max-width: 576px) {
-        #toast-container {
             left: 12px !important;
             right: 12px !important;
             bottom: 12px !important;

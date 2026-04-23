@@ -1,10 +1,5 @@
 <?php
-/**
- * Shared HTML head partial
- * Variables:
- *   $pageTitle  (string) - page title, defaults to 'Premium Cafeteria'
- *   $bodyClass  (string) - optional extra class(es) for <body>
- */
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

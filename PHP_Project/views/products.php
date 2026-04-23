@@ -149,7 +149,6 @@ include __DIR__ . '/layouts/head.php';
         let currentView = 'grid';
         const itemsPerPageOptions = [6, 12, 24];
 
-        // Initialize on page load
         document.addEventListener('DOMContentLoaded', async function() {
             await loadCategories();
             hydrateFiltersFromUrl();
@@ -265,7 +264,6 @@ include __DIR__ . '/layouts/head.php';
             if (updateUrl) syncUrlState();
         }
 
-        // Load all products
         async function loadAllProducts() {
             try {
                 const response = await Utils.apiRequest('/api/products');
@@ -279,7 +277,6 @@ include __DIR__ . '/layouts/head.php';
             return false;
         }
 
-        // Load categories for filter
         async function loadCategories() {
             try {
                 const response = await Utils.apiRequest('/api/categories');
@@ -299,7 +296,6 @@ include __DIR__ . '/layouts/head.php';
             }
         }
 
-        // Apply filters and refresh products
         function applyFilters(updateUrl = true) {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categoryId = document.getElementById('categoryFilter').value;
@@ -307,7 +303,6 @@ include __DIR__ . '/layouts/head.php';
             const priceMax = parseFloat(document.getElementById('priceMax').value) || Infinity;
             const sortBy = document.getElementById('sortBy').value;
 
-            // Filter products
             filteredProducts = allProducts.filter(product => {
                 const matchesSearch = !searchTerm || 
                     product.name.toLowerCase().includes(searchTerm) ||
@@ -319,7 +314,6 @@ include __DIR__ . '/layouts/head.php';
                 return matchesSearch && matchesCategory && matchesPrice;
             });
 
-            // Sort products
             switch(sortBy) {
                 case 'price-low':
                     filteredProducts.sort((a, b) => a.price - b.price);
@@ -343,7 +337,6 @@ include __DIR__ . '/layouts/head.php';
             }
         }
 
-        // Display products for current page
         function displayProducts() {
             const container = document.getElementById('productsGrid');
             const emptyState = document.getElementById('emptyState');
@@ -408,7 +401,6 @@ include __DIR__ . '/layouts/head.php';
 
             container.innerHTML = html;
 
-            // Display pagination
             displayPagination(itemsPerPage);
         }
 
@@ -422,7 +414,6 @@ include __DIR__ . '/layouts/head.php';
             meta.textContent = `Showing ${shownFrom}-${shownTo} of ${filteredCount} items${filteredCount !== totalCount ? ` (from ${totalCount})` : ''}`;
         }
 
-        // Display pagination controls
         function displayPagination(itemsPerPage) {
             const paginationContainer = document.getElementById('paginationContainer');
             const pagination = document.getElementById('pagination');
@@ -436,13 +427,11 @@ include __DIR__ . '/layouts/head.php';
             paginationContainer.style.display = 'block';
             pagination.innerHTML = '';
 
-            // Previous button
             const prevLi = document.createElement('li');
             prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
             prevLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;"><i class="fas fa-chevron-left"></i></a>`;
             pagination.appendChild(prevLi);
 
-            // Page numbers
             for (let i = 1; i <= totalPages; i++) {
                 const li = document.createElement('li');
                 li.className = `page-item ${i === currentPage ? 'active' : ''}`;
@@ -450,14 +439,12 @@ include __DIR__ . '/layouts/head.php';
                 pagination.appendChild(li);
             }
 
-            // Next button
             const nextLi = document.createElement('li');
             nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
             nextLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;"><i class="fas fa-chevron-right"></i></a>`;
             pagination.appendChild(nextLi);
         }
 
-        // Go to specific page
         function goToPage(page) {
             const itemsPerPage = parseInt(document.getElementById('perPage').value) || 6;
             const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -469,7 +456,6 @@ include __DIR__ . '/layouts/head.php';
             }
         }
 
-        // Reset filters
         function resetFilters() {
             document.getElementById('searchInput').value = '';
             document.getElementById('categoryFilter').value = '';
@@ -482,7 +468,6 @@ include __DIR__ . '/layouts/head.php';
             applyFilters();
         }
 
-        // Real-time search
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {

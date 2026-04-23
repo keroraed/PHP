@@ -1,12 +1,6 @@
 <?php
-/**
- * Admin Routes
- * Administrative functions (requires admin role)
- */
 
-// ============================================================
-// ADMIN PAGE ROUTES
-// ============================================================
+
 
 $router->get('/admin/products', function() {
     if (($_SESSION['role'] ?? null) !== 'admin') {
@@ -30,6 +24,14 @@ $router->get('/admin/orders', function() {
         exit;
     }
     include 'views/admin/orders.php';
+});
+
+$router->get('/admin/messages', function() {
+    if (($_SESSION['role'] ?? null) !== 'admin') {
+        header('Location: /');
+        exit;
+    }
+    include 'views/admin/messages.php';
 });
 
 $router->get('/admin/products/add', function() {
@@ -67,9 +69,6 @@ $router->get('/admin/products/{id}/edit', function($id) {
     exit;
 });
 
-// ============================================================
-// ADMIN POST/FORM ROUTES
-// ============================================================
 
 $router->post('/admin/users', function() {
     if (!isset($_SESSION['user_id'])) {

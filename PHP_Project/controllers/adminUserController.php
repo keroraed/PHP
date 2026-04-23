@@ -1,8 +1,5 @@
 <?php
-/**
- * Admin User Controller (Non-namespaced wrapper for admin routes)
- * Handles user creation and management for admin panel
- */
+
 
 require_once __DIR__ . '/../config/dp.php';
 require_once __DIR__ . '/../models/users.php';
@@ -15,9 +12,7 @@ class adminUserController {
         $this->user = new User();
     }
 
-    /**
-     * Store a new user
-     */
+    
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return [
@@ -33,7 +28,6 @@ class adminUserController {
         $role = $_POST['role'] ?? 'user';
         $profilePicture = $this->handleAvatarUpload();
 
-        // Validate input
         if (!$email || !$password || !$name) {
             return [
                 'success' => false,
@@ -42,7 +36,6 @@ class adminUserController {
             ];
         }
 
-        // Check if email already exists
         $existingUser = $this->user->getUserByEmail($email);
         if ($existingUser) {
             return [
@@ -53,10 +46,8 @@ class adminUserController {
         }
 
         try {
-            // Hash password
             $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
             
-            // Insert user using raw query (since the model might not have the insert method)
             $db = new db();
             $stmt = $db->connection->prepare("
                 INSERT INTO users (email, password, name, role, profile_picture, room_no, ext, building, created_at, updated_at)
@@ -96,9 +87,7 @@ class adminUserController {
         }
     }
 
-    /**
-     * Handle avatar upload
-     */
+    
     private function handleAvatarUpload() {
         if (!isset($_FILES['avatar']) || $_FILES['avatar']['error'] === UPLOAD_ERR_NO_FILE) {
             return null;
@@ -123,9 +112,7 @@ class adminUserController {
         return $fileName;
     }
 
-    /**
-     * Get all users
-     */
+    
     public function getAll() {
         try {
             $users = $this->user->getAllUsers();
@@ -144,9 +131,7 @@ class adminUserController {
         }
     }
 
-    /**
-     * Delete a user
-     */
+    
     public function delete($id) {
         try {
             $db = new db();

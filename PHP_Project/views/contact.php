@@ -1,5 +1,7 @@
 <?php
 $pageTitle = 'Contact Us';
+$adminEmail = 'admin@example.com';
+$adminPhone = '+1 (234) 567-890';
 include __DIR__ . '/layouts/head.php';
 ?>
     <!-- Navigation -->
@@ -8,12 +10,28 @@ include __DIR__ . '/layouts/head.php';
     <!-- Page Header -->
     <div class="page-header">
         <div class="container-fluid">
-            <h1>📞 Contact Us</h1>
-            <p>We'd love to hear from you. Get in touch with us today!</p>
+            <h1>📞 Contact Admin</h1>
+            <p>Need help or a new account? Send your message directly to the administrator.</p>
         </div>
     </div>
 
     <div class="container py-5">
+        <?php if (isset($_GET['success'])): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <?= htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['error'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <?= htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
         <div class="row g-4">
             <!-- Contact Information -->
             <div class="col-lg-4">
@@ -21,13 +39,13 @@ include __DIR__ . '/layouts/head.php';
                 <div class="card-modern mb-4">
                     <div class="card-body-modern text-center">
                         <i class="fas fa-phone" style="font-size: 3rem; color: var(--primary-dark); margin-bottom: 1rem; display: block;"></i>
-                        <h5 style="color: var(--primary-dark); margin-bottom: 0.5rem;">Phone</h5>
+                        <h5 style="color: var(--primary-dark); margin-bottom: 0.5rem;">Admin Phone</h5>
                         <p style="color: var(--text-dark); margin: 0;">
-                            <a href="tel:+1234567890" style="color: var(--primary-dark); text-decoration: none;">
-                                +1 (234) 567-890
+                            <a href="tel:<?= htmlspecialchars(str_replace([' ', '(', ')', '-'], '', $adminPhone)) ?>" style="color: var(--primary-dark); text-decoration: none;">
+                                <?= htmlspecialchars($adminPhone) ?>
                             </a>
                         </p>
-                        <small style="color: var(--text-muted);">Mon - Fri: 8:00 AM - 5:00 PM</small>
+                        <small style="color: var(--text-muted);">Admin support hours: Mon - Fri, 8:00 AM - 5:00 PM</small>
                     </div>
                 </div>
 
@@ -35,13 +53,13 @@ include __DIR__ . '/layouts/head.php';
                 <div class="card-modern mb-4">
                     <div class="card-body-modern text-center">
                         <i class="fas fa-envelope" style="font-size: 3rem; color: var(--primary-dark); margin-bottom: 1rem; display: block;"></i>
-                        <h5 style="color: var(--primary-dark); margin-bottom: 0.5rem;">Email</h5>
+                        <h5 style="color: var(--primary-dark); margin-bottom: 0.5rem;">Admin Email</h5>
                         <p style="color: var(--text-dark); margin: 0;">
-                            <a href="mailto:info@cafeteria.com" style="color: var(--primary-dark); text-decoration: none;">
-                                info@cafeteria.com
+                            <a href="mailto:<?= htmlspecialchars($adminEmail) ?>" style="color: var(--primary-dark); text-decoration: none;">
+                                <?= htmlspecialchars($adminEmail) ?>
                             </a>
                         </p>
-                        <small style="color: var(--text-muted);">We'll reply within 24 hours</small>
+                        <small style="color: var(--text-muted);">Admin usually replies within 24 hours</small>
                     </div>
                 </div>
 
@@ -63,7 +81,7 @@ include __DIR__ . '/layouts/head.php';
             <div class="col-lg-8">
                 <div class="card-modern">
                     <div class="card-header-modern">
-                        <h5><i class="fas fa-envelope-open"></i> Send us a Message</h5>
+                        <h5><i class="fas fa-envelope-open"></i> Send a Message to Admin</h5>
                     </div>
                     <div class="card-body-modern">
                         <form action="/contact/send" method="POST">
@@ -115,6 +133,7 @@ include __DIR__ . '/layouts/head.php';
                                 </label>
                                 <select class="form-control-modern" id="subject" name="subject" required>
                                     <option value="">Select a subject</option>
+                                    <option value="registration">Account Registration Request</option>
                                     <option value="general">General Inquiry</option>
                                     <option value="orders">Order Question</option>
                                     <option value="feedback">Feedback</option>
@@ -153,7 +172,7 @@ include __DIR__ . '/layouts/head.php';
 
                             <!-- Submit Button -->
                             <button type="submit" class="btn btn-primary-modern">
-                                <i class="fas fa-paper-plane"></i> Send Message
+                                <i class="fas fa-paper-plane"></i> Send to Admin
                             </button>
                         </form>
                     </div>

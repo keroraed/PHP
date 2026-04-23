@@ -3,7 +3,7 @@ class Service {
     private $host = "localhost";
     private $dbname = "PHP_Project";
     private $user = "root";
-    private $password = "password";
+    private $password = "";
     public $connection;
     public function __construct() {
         try {

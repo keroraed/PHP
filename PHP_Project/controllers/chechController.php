@@ -19,11 +19,8 @@ class CheckController {
         $this->product = new Product();
     }
 
-    /**
-     * Display checkout form
-     */
+    
     public function showCheckout() {
-        // Get user ID from session or request
         $userId = $_SESSION['user_id'] ?? $_GET['user_id'] ?? null;
         
         if (!$userId) {
@@ -43,7 +40,6 @@ class CheckController {
             ];
         }
 
-        // Get all products for selection
         $products = $this->product->getAllProducts();
         $productsList = $products->fetchAll(PDO::FETCH_ASSOC);
 
@@ -57,9 +53,7 @@ class CheckController {
         ];
     }
 
-    /**
-     * Process checkout and create order
-     */
+    
     public function processCheckout() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return [
@@ -81,7 +75,6 @@ class CheckController {
         }
 
         try {
-            // Verify user exists
             $user = $this->user->getUserById($userId);
             if (!$user) {
                 return [
@@ -91,7 +84,6 @@ class CheckController {
                 ];
             }
 
-            // Calculate total price
             $totalPrice = 0;
             $itemsArray = is_array($items) ? $items : json_decode($items, true);
             
@@ -104,7 +96,6 @@ class CheckController {
                     ];
                 }
 
-                // Verify product exists
                 $product = $this->product->getProductById($item['product_id']);
                 if (!$product) {
                     return [
@@ -117,7 +108,6 @@ class CheckController {
                 $totalPrice += $item['price'] * $item['quantity'];
             }
 
-            // Create order
             $orderId = $this->createOrder($userId, $itemsArray, $totalPrice);
             
             if ($orderId) {
@@ -146,12 +136,9 @@ class CheckController {
         }
     }
 
-    /**
-     * Create order with items
-     */
+    
     private function createOrder($userId, $items, $totalPrice) {
         try {
-            // Insert main order
             $firstProduct = $items[0];
             $result = $this->order->insertOrder($userId, $firstProduct['product_id'], $firstProduct['quantity'], $totalPrice);
             
@@ -159,12 +146,10 @@ class CheckController {
                 return false;
             }
 
-            // Get the last inserted order ID
             $orders = $this->order->getAllOrders();
             $ordersList = $orders->fetchAll(PDO::FETCH_ASSOC);
             $orderId = end($ordersList)['id'];
 
-            // Insert order items
             foreach ($items as $item) {
                 $this->orderItem->insertOrderItem(
                     $orderId,
@@ -180,9 +165,7 @@ class CheckController {
         }
     }
 
-    /**
-     * Get checkout summary
-     */
+    
     public function getSummary($orderId) {
         $order = $this->order->getOrderById($orderId);
         if (!$order) {
@@ -193,14 +176,12 @@ class CheckController {
             ];
         }
 
-        // Get order items
         $items = $this->orderItem->getAllOrderItems();
         $itemsArray = $items->fetchAll(PDO::FETCH_ASSOC);
         $orderItems = array_filter($itemsArray, function($item) use ($orderId) {
             return $item['order_id'] == $orderId;
         });
 
-        // Get user info
         $user = $this->user->getUserById($order['user_id']);
 
         return [
@@ -214,9 +195,7 @@ class CheckController {
         ];
     }
 
-    /**
-     * Confirm/Complete checkout
-     */
+    
     public function confirmCheckout($orderId) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return [
@@ -236,8 +215,6 @@ class CheckController {
         }
 
         try {
-            // Update order status to completed (if status field exists)
-            // This is a simple implementation, adjust based on your schema
             
             return [
                 'success' => true,
@@ -257,9 +234,7 @@ class CheckController {
         }
     }
 
-    /**
-     * Cancel checkout
-     */
+    
     public function cancelCheckout($orderId) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return [
@@ -279,7 +254,6 @@ class CheckController {
         }
 
         try {
-            // Delete order items
             $items = $this->orderItem->getAllOrderItems();
             $itemsArray = $items->fetchAll(PDO::FETCH_ASSOC);
             foreach ($itemsArray as $item) {
@@ -288,7 +262,6 @@ class CheckController {
                 }
             }
 
-            // Delete order
             $this->order->deleteOrder($orderId);
 
             return [

@@ -131,11 +131,9 @@ include __DIR__ . '/../layouts/head.php';
                     const categories = response.data.data;
                     const select = document.getElementById('category_id');
 
-                    // Build dynamic map
                     categories.forEach(cat => {
                         categoryMap[cat.id] = cat.name;
 
-                        // Populate select if not already populated (PHP fallback may have done it)
                         if (!select.querySelector(`option[value="${cat.id}"]`)) {
                             const opt = document.createElement('option');
                             opt.value = cat.id;
@@ -251,7 +249,6 @@ include __DIR__ . '/../layouts/head.php';
         document.addEventListener('DOMContentLoaded', async function() {
             const form = document.getElementById('productForm');
 
-            // Load categories first, then products
             await loadCategories();
             loadProducts();
 

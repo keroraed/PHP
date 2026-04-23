@@ -165,7 +165,6 @@ include __DIR__ . '/../layouts/head.php';
         document.getElementById('addUserForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Validate password match
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm_password').value;
             

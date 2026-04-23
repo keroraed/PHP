@@ -307,10 +307,8 @@ include __DIR__ . '/../layouts/head.php';
         }
 
         async function cancelAdminOrder(orderId) {
-            // Show confirmation modal instead of basic confirm
             pendingAdminCancelOrderId = orderId;
             
-            // Remove any existing modal
             const oldModal = document.getElementById('adminCancelConfirmModal');
             if (oldModal) {
                 oldModal.remove();
@@ -346,11 +344,9 @@ include __DIR__ . '/../layouts/head.php';
             `;
             document.body.appendChild(modal);
             
-            // Show modal
             const bsModal = new bootstrap.Modal(modal);
             bsModal.show();
             
-            // Wait a moment for modal to be rendered, then attach event listener
             setTimeout(() => {
                 const confirmBtn = document.getElementById('adminConfirmCancelBtn');
                 if (confirmBtn) {
@@ -379,10 +375,8 @@ include __DIR__ . '/../layouts/head.php';
                 const result = await response.json();
 
                 if (result.success) {
-                    // Remove from allOrders array
                     allOrders = allOrders.filter(order => order.id != orderId);
                     
-                    // Animate removal
                     if (orderElement) {
                         orderElement.style.animation = 'fadeOutSlide 0.5s ease-out forwards';
                         setTimeout(() => {
@@ -393,14 +387,12 @@ include __DIR__ . '/../layouts/head.php';
                     
                     window.toast?.success('Order cancelled and removed', 'Success');
                     
-                    // Close the modal
                     const modalElement = document.getElementById('adminCancelConfirmModal');
                     if (modalElement) {
                         const bsModal = bootstrap.Modal.getInstance(modalElement);
                         if (bsModal) {
                             bsModal.hide();
                         }
-                        // Remove modal from DOM
                         setTimeout(() => {
                             const modal = document.getElementById('adminCancelConfirmModal');
                             if (modal && modal.parentNode) {
@@ -460,7 +452,6 @@ include __DIR__ . '/../layouts/head.php';
         }
 
         function updateSummary() {
-            // Calculate summary for done orders
             const doneOrders = allOrders.filter(order => order.status === 'done');
             
             if (doneOrders.length === 0) {
@@ -483,7 +474,6 @@ include __DIR__ . '/../layouts/head.php';
             document.getElementById('doneItems').textContent = totalItems;
         }
 
-        // Load data on page load
         document.addEventListener('DOMContentLoaded', async () => {
             await loadUsers();
             loadOrders();

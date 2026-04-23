@@ -1,9 +1,5 @@
 <?php
-/**
- * Reusable Modern Footer Component
- * Light theme with Vanilla Cream background
- * Used across all pages for consistent footer
- */
+
 ?>
 
 <footer class="footer-modern">

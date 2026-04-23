@@ -48,18 +48,14 @@ class User extends Service {
         return false;
     }
     
-    /**
-     * Find user by column and value
-     */
+    
     public function findOneBy($column, $value) {
         $stmt = $this->connection->prepare("SELECT * FROM users WHERE {$column} = ? LIMIT 1");
         $stmt->execute([$value]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    /**
-     * Insert with flexible array of data
-     */
+    
     public function insert($data) {
         $columns = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
@@ -69,9 +65,7 @@ class User extends Service {
         return $stmt->execute(array_values($data));
     }
     
-    /**
-     * Update with flexible array of data
-     */
+    
     public function update($id, $data) {
         $set = implode(', ', array_map(function($key) {
             return "{$key} = ?";
@@ -85,34 +79,26 @@ class User extends Service {
         return $stmt->execute($values);
     }
 
-    /**
-     * Get user by email
-     */
+    
     public function getUserByEmail($email) {
         $stmt = $this->connection->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Get all users
-     */
+    
     public function getAllUsers() {
         $stmt = $this->connection->prepare("SELECT id, name, email, role, profile_picture, room_no, ext, building, created_at FROM users");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Compatibility alias
-     */
+    
     public function findById($id) {
         return $this->getUserById($id);
     }
 
-    /**
-     * Generic delete by id (compatibility with API routes)
-     */
+    
     public function delete($id) {
         return $this->deleteUser($id);
     }

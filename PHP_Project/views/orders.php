@@ -30,6 +30,13 @@ include __DIR__ . '/layouts/head.php';
                         </div>
                         <div class="card-body-modern">
                             <div id="pendingCartItems"></div>
+
+                            <div class="mb-3" style="border: 1px solid rgba(44,24,16,0.1); border-radius: 8px; padding: 12px; background: rgba(212,165,116,0.08);">
+                                <label class="form-label-modern mb-2">🏢 In-Company Delivery</label>
+                                <div id="pendingDeliveryDetails">
+                                    <p class="text-muted mb-0">Loading delivery details...</p>
+                                </div>
+                            </div>
                             
                             <div class="cart-totals-summary">
                                 <div class="d-flex justify-content-between mb-2">
@@ -82,7 +89,68 @@ include __DIR__ . '/layouts/head.php';
 
     <?php include __DIR__ . '/layouts/scripts.php'; ?>
     <script>
-        // Display pending cart
+        let currentDeliveryDetails = null;
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (m) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[m]));
+        }
+
+        function buildDeliveryLine(details) {
+            if (!details) return '';
+            const building = details.building || 'N/A';
+            const room = details.room_no || 'N/A';
+            const ext = details.ext || 'N/A';
+            return `Delivery: Building ${building}, Room ${room}, Ext ${ext}`;
+        }
+
+        function renderPendingDeliveryDetails(details) {
+            const container = document.getElementById('pendingDeliveryDetails');
+            if (!container) return;
+
+            if (!details) {
+                container.innerHTML = '<p class="text-muted mb-0">No delivery details available yet</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted">Building:</span>
+                    <strong>${escapeHtml(details.building || 'N/A')}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted">Room:</span>
+                    <strong>${escapeHtml(details.room_no || 'N/A')}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-0">
+                    <span class="text-muted">Extension:</span>
+                    <strong>${escapeHtml(details.ext || 'N/A')}</strong>
+                </div>
+            `;
+        }
+
+        async function loadCurrentDeliveryDetails() {
+            try {
+                const response = await fetch('/api/me');
+                const data = await response.json();
+
+                if (data.success) {
+                    currentDeliveryDetails = data.data;
+                    renderPendingDeliveryDetails(currentDeliveryDetails);
+                } else {
+                    renderPendingDeliveryDetails(null);
+                }
+            } catch (error) {
+                console.error('Error loading delivery details:', error);
+                renderPendingDeliveryDetails(null);
+            }
+        }
+
         function displayPendingCart() {
             if (typeof CartManager === 'undefined') {
                 console.error('CartManager not loaded');
@@ -121,7 +189,6 @@ include __DIR__ . '/layouts/head.php';
             html += '</ul>';
             itemsContainer.innerHTML = html;
 
-            // Update totals
             const totals = CartManager.calculateTotals();
             document.getElementById('cartSubtotal').textContent = 'EGP ' + totals.subtotal.toFixed(2);
             document.getElementById('cartTax').textContent = 'EGP ' + totals.tax.toFixed(2);
@@ -171,7 +238,10 @@ include __DIR__ . '/layouts/head.php';
                     },
                     body: JSON.stringify({
                         userId: null, // Current user will be set by the API
-                        notes: 'Order placed from shopping cart',
+                        notes: [
+                            'Order placed from shopping cart',
+                            buildDeliveryLine(currentDeliveryDetails)
+                        ].filter(Boolean).join('\n'),
                         subtotal: totals.subtotal,
                         tax: totals.tax,
                         total: totals.total,
@@ -292,11 +362,9 @@ include __DIR__ . '/layouts/head.php';
         }
         
         async function cancelOrder(orderId) {
-            // Show custom confirmation dialog
             const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
             if (!orderCard) return;
             
-            // Create confirmation modal
             const confirmModal = document.createElement('div');
             confirmModal.className = 'modal fade';
             confirmModal.id = `confirmCancelModal-${orderId}`;
@@ -330,7 +398,6 @@ include __DIR__ . '/layouts/head.php';
             const modal = new bootstrap.Modal(confirmModal);
             modal.show();
             
-            // Clean up modal after it's hidden
             confirmModal.addEventListener('hidden.bs.modal', function() {
                 confirmModal.remove();
             });
@@ -338,7 +405,6 @@ include __DIR__ . '/layouts/head.php';
 
         async function confirmCancelOrder(orderId) {
             try {
-                // Show loading state on the order card
                 const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
                 if (orderCard) {
                     const originalContent = orderCard.innerHTML;
@@ -351,7 +417,6 @@ include __DIR__ . '/layouts/head.php';
                 });
                 const result = await response.json();
                 
-                // Close the confirmation modal
                 const confirmModal = document.querySelector(`#confirmCancelModal-${orderId}`);
                 if (confirmModal) {
                     const modal = bootstrap.Modal.getInstance(confirmModal);
@@ -359,14 +424,12 @@ include __DIR__ . '/layouts/head.php';
                 }
                 
                 if (result.success) {
-                    // Animate removal
                     if (orderCard) {
                         orderCard.style.transition = 'all 0.3s ease';
                         orderCard.style.opacity = '0';
                         orderCard.style.transform = 'translateX(100%)';
                         setTimeout(() => {
                             orderCard.remove();
-                            // Check if there are any orders left
                             const container = document.getElementById('ordersContainer');
                             if (container && container.children.length === 0) {
                                 showEmptyState('You haven\'t placed any orders yet');
@@ -376,7 +439,6 @@ include __DIR__ . '/layouts/head.php';
                     
                     window.toast?.success('Order cancelled and removed successfully', 'Cancelled');
                 } else {
-                    // Restore state if error
                     if (orderCard) {
                         orderCard.style.opacity = '1';
                         orderCard.style.pointerEvents = 'auto';
@@ -384,7 +446,6 @@ include __DIR__ . '/layouts/head.php';
                     window.toast?.error(result.message || 'Failed to cancel order', 'Error');
                 }
             } catch (error) {
-                // Restore state if error
                 const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
                 if (orderCard) {
                     orderCard.style.opacity = '1';
@@ -407,8 +468,8 @@ include __DIR__ . '/layouts/head.php';
             `;
         }
 
-        // Load orders on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadCurrentDeliveryDetails();
             displayPendingCart();
             loadOrders();
         });

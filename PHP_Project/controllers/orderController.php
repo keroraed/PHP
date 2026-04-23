@@ -13,9 +13,7 @@ class OrderController {
         $this->orderItem = new OrderItem();
     }
 
-    /**
-     * Display all orders
-     */
+    
     public function index() {
         $orders = $this->order->getAllOrders();
         return [
@@ -25,9 +23,7 @@ class OrderController {
         ];
     }
 
-    /**
-     * Display a single order with items
-     */
+    
     public function show($id) {
         $order = $this->order->getOrderById($id);
         if (!$order) {
@@ -38,7 +34,6 @@ class OrderController {
             ];
         }
 
-        // Get order items for this order
         $items = $this->orderItem->getAllOrderItems();
         $itemsArray = $items->fetchAll(PDO::FETCH_ASSOC);
         $orderItems = array_filter($itemsArray, function($item) use ($id) {
@@ -55,9 +50,7 @@ class OrderController {
         ];
     }
 
-    /**
-     * Create a new order
-     */
+    
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return [
@@ -72,7 +65,6 @@ class OrderController {
         $quantity = $_POST['quantity'] ?? null;
         $totalPrice = $_POST['total_price'] ?? null;
 
-        // Validate input
         if (!$userId || !$productId || !$quantity || !$totalPrice) {
             return [
                 'success' => false,
@@ -105,9 +97,7 @@ class OrderController {
         }
     }
 
-    /**
-     * Update an order
-     */
+    
     public function update($id) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'PUT') {
             return [
@@ -155,9 +145,7 @@ class OrderController {
         }
     }
 
-    /**
-     * Delete an order
-     */
+    
     public function delete($id) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'DELETE') {
             return [
@@ -177,7 +165,6 @@ class OrderController {
         }
 
         try {
-            // Delete order items first
             $items = $this->orderItem->getAllOrderItems();
             $itemsArray = $items->fetchAll(PDO::FETCH_ASSOC);
             foreach ($itemsArray as $item) {
@@ -186,7 +173,6 @@ class OrderController {
                 }
             }
 
-            // Then delete the order
             $result = $this->order->deleteOrder($id);
             if ($result) {
                 return [
@@ -210,9 +196,7 @@ class OrderController {
         }
     }
 
-    /**
-     * Add item to order
-     */
+    
     public function addItem($orderId) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return [
@@ -267,9 +251,7 @@ class OrderController {
         }
     }
 
-    /**
-     * Remove item from order
-     */
+    
     public function removeItem($itemId) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'DELETE') {
             return [

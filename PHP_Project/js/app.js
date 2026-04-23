@@ -1,7 +1,4 @@
-/**
- * Modern Cafeteria - Main JavaScript Module
- * Handles toast notifications, dark mode, and interactive features
- */
+
 
 class ToastNotification {
     constructor() {
@@ -83,12 +80,9 @@ class ToastNotification {
     }
 }
 
-// Create global toast instance
 window.toast = new ToastNotification();
 
-/**
- * Dark Mode Manager
- */
+
 class DarkModeManager {
     constructor() {
         this.storageKey = 'cafeteria-dark-mode';
@@ -98,7 +92,6 @@ class DarkModeManager {
     init() {
         const isDarkMode = this.getSavedMode();
         if (isDarkMode === null) {
-            // Check system preference
             this.setDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
         } else {
             this.setDarkMode(isDarkMode);
@@ -132,7 +125,6 @@ class DarkModeManager {
 
 window.darkMode = new DarkModeManager();
 
-// Dark Mode Toggle Function
 function toggleDarkMode() {
     darkMode.toggle();
     const isDark = darkMode.isDarkMode();
@@ -142,9 +134,7 @@ function toggleDarkMode() {
     }
 }
 
-/**
- * Loading Spinner
- */
+
 class LoadingSpinner {
     static show(message = 'Loading...') {
         let overlay = document.getElementById('loading-overlay');
@@ -173,9 +163,7 @@ class LoadingSpinner {
 
 window.LoadingSpinner = LoadingSpinner;
 
-/**
- * Skeleton Loader for Products
- */
+
 class SkeletonLoader {
     static createProductSkeleton() {
         const skeleton = document.createElement('div');
@@ -202,29 +190,20 @@ class SkeletonLoader {
 
 window.SkeletonLoader = SkeletonLoader;
 
-/**
- * Utility Functions
- */
+
 window.Utils = {
-    /**
-     * Format currency in EGP
-     */
+    
     formatCurrency(amount) {
         return `EGP ${parseFloat(amount).toFixed(2)}`;
     },
 
-    /**
-     * Get full image URL for a product image filename.
-     * Handles: null/empty → null, absolute paths → as-is, relative → /uploads/products/{file}
-     */
+    
     getProductImageUrl(image) {
         if (!image) return null;
         return String(image).startsWith('/') ? image : `/uploads/products/${image}`;
     },
 
-    /**
-     * Format date
-     */
+    
     formatDate(date) {
         return new Intl.DateTimeFormat('en-US', {
             year: 'numeric',
@@ -233,9 +212,7 @@ window.Utils = {
         }).format(new Date(date));
     },
 
-    /**
-     * Debounce function
-     */
+    
     debounce(func, delay) {
         let timeoutId;
         return function(...args) {
@@ -244,9 +221,7 @@ window.Utils = {
         };
     },
 
-    /**
-     * Throttle function
-     */
+    
     throttle(func, delay) {
         let lastCall = 0;
         return function(...args) {
@@ -258,9 +233,7 @@ window.Utils = {
         };
     },
 
-    /**
-     * Check if element is in viewport
-     */
+    
     isInViewport(element) {
         const rect = element.getBoundingClientRect();
         return (
@@ -271,17 +244,13 @@ window.Utils = {
         );
     },
 
-    /**
-     * Scroll to element
-     */
+    
     scrollToElement(element, offset = 80) {
         const top = element.getBoundingClientRect().top + window.scrollY - offset;
         window.scrollTo({ top, behavior: 'smooth' });
     },
 
-    /**
-     * Make API request
-     */
+    
     async apiRequest(url, options = {}) {
         const defaultOptions = {
             method: 'GET',
@@ -314,9 +283,7 @@ window.Utils = {
     }
 };
 
-/**
- * Get current authenticated user (cached)
- */
+
 window.getCurrentUser = async function() {
     if (window.__currentUserCache !== undefined) {
         return window.__currentUserCache;
@@ -332,16 +299,12 @@ window.getCurrentUser = async function() {
     return null;
 };
 
-/**
- * Initialize on DOM Ready
- */
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize cart count
     if (CartManager) {
         CartManager.updateCartCount();
     }
     
-    // Initialize any tooltips if Bootstrap is present
     if (typeof bootstrap !== 'undefined') {
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -349,7 +312,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add smooth scrolling
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -361,9 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-/**
- * Handle form submissions with AJAX
- */
+
 window.submitFormAjax = async function(formElement, options = {}) {
     options = {
         showLoading: true,
@@ -421,22 +381,16 @@ window.submitFormAjax = async function(formElement, options = {}) {
     }
 };
 
-/**
- * Add product to cart (WIP - will be connected to backend)
- */
-/**
- * Cart Management System
- */
+
+
 window.CartManager = {
     STORAGE_KEY: 'cafeteria_cart',
     
-    // Get all items in cart
     getCart: function() {
         const cart = localStorage.getItem(this.STORAGE_KEY);
         return cart ? JSON.parse(cart) : {};
     },
     
-    // Add item to cart
     addItem: function(productId, product, quantity = 1) {
         const cart = this.getCart();
         
@@ -457,7 +411,6 @@ window.CartManager = {
         return cart[productId];
     },
     
-    // Remove item from cart
     removeItem: function(productId) {
         const cart = this.getCart();
         delete cart[productId];
@@ -465,7 +418,6 @@ window.CartManager = {
         this.updateCartCount();
     },
     
-    // Update item quantity
     updateQuantity: function(productId, quantity) {
         const cart = this.getCart();
         if (cart[productId]) {
@@ -479,25 +431,21 @@ window.CartManager = {
         }
     },
     
-    // Get cart count
     getCartCount: function() {
         const cart = this.getCart();
         return Object.keys(cart).length;
     },
     
-    // Get total items (sum of quantities)
     getTotalQuantity: function() {
         const cart = this.getCart();
         return Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
     },
     
-    // Clear entire cart
     clearCart: function() {
         localStorage.removeItem(this.STORAGE_KEY);
         this.updateCartCount();
     },
     
-    // Calculate totals
     calculateTotals: function() {
         const cart = this.getCart();
         const subtotal = Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -509,7 +457,6 @@ window.CartManager = {
         };
     },
     
-    // Update cart count in navbar
     updateCartCount: function() {
         const count = this.getCartCount();
         const cartIcon = document.getElementById('cartCount');
@@ -528,7 +475,6 @@ window.addToCart = async function(productId, quantity = 1) {
     try {
         const me = await window.getCurrentUser();
 
-        // Not logged in
         if (!me) {
             toast.info('Please login first to place an order', 'Authentication');
             setTimeout(() => {
@@ -537,7 +483,6 @@ window.addToCart = async function(productId, quantity = 1) {
             return false;
         }
 
-        // Admin: navigate to product management/edit page
         if (me.role === 'admin') {
             toast.info('Admins can edit products from the manage products page', 'Admin Action');
             setTimeout(() => {
@@ -546,7 +491,6 @@ window.addToCart = async function(productId, quantity = 1) {
             return true;
         }
 
-        // Load product details
         const productRes = await Utils.apiRequest(`/api/products/${productId}`);
         if (!(productRes.success && productRes.data && productRes.data.success)) {
             toast.error('Failed to load product details');
@@ -555,10 +499,8 @@ window.addToCart = async function(productId, quantity = 1) {
 
         const product = productRes.data.data;
         
-        // Add to local cart
         const addedItem = CartManager.addItem(productId, product, quantity);
         
-        // Show success toast
         toast.success(`${product.name} added to cart!`, 'Added');
         
         return true;
@@ -568,9 +510,7 @@ window.addToCart = async function(productId, quantity = 1) {
     }
 };
 
-/**
- * Toggle wishlist item
- */
+
 window.toggleWishlist = async function(productId, button) {
     try {
         const response = await Utils.apiRequest(`/api/wishlist/${productId}`, {
@@ -590,9 +530,7 @@ window.toggleWishlist = async function(productId, button) {
     }
 };
 
-/**
- * Lazy load images
- */
+
 window.lazyLoadImages = function() {
     if ('IntersectionObserver' in window) {
         const images = document.querySelectorAll('img[data-src]');
@@ -610,7 +548,6 @@ window.lazyLoadImages = function() {
 
         images.forEach(img => imageObserver.observe(img));
     } else {
-        // Fallback for browsers that don't support IntersectionObserver
         const images = document.querySelectorAll('img[data-src]');
         images.forEach(img => {
             img.src = img.dataset.src;
@@ -618,5 +555,4 @@ window.lazyLoadImages = function() {
     }
 };
 
-// Initialize lazy loading when DOM is ready
 document.addEventListener('DOMContentLoaded', lazyLoadImages);

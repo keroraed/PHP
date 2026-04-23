@@ -1,15 +1,10 @@
 <?php
-/**
- * Public Routes
- * These routes are accessible to all users (authenticated and non-authenticated)
- */
 
-// Home page
+
 $router->get('/', function() {
     include 'views/user/home.php';
 });
 
-// Login - GET (display form)
 $router->get('/login', function() {
     if (isset($_SESSION['user_id'])) {
         header('Location: /');
@@ -18,7 +13,6 @@ $router->get('/login', function() {
     include 'views/auth/login.php';
 });
 
-// Login - POST (authenticate user)
 $router->post('/login', function() {
     require_once 'models/users.php';
     $user = new User();
@@ -43,7 +37,6 @@ $router->post('/login', function() {
     exit;
 });
 
-// Register - GET (display form)
 $router->get('/register', function() {
     if (isset($_SESSION['user_id'])) {
         header('Location: /');
@@ -52,67 +45,22 @@ $router->get('/register', function() {
     include 'views/auth/register.php';
 });
 
-// Register - POST (create new user)
 $router->post('/register', function() {
-    require_once 'models/users.php';
-    
-    $name = $_POST['name'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $confirm = $_POST['confirm_password'] ?? '';
-    
-    // Validation
-    if (!$name || !$email || !$password) {
-        header('Location: /register?error=All fields are required');
-        exit;
-    }
-    
-    if ($password !== $confirm) {
-        header('Location: /register?error=Passwords do not match');
-        exit;
-    }
-    
-    $user = new User();
-    
-    // Check if email exists
-    if ($user->findOneBy('email', $email)) {
-        header('Location: /register?error=Email already registered');
-        exit;
-    }
-    
-    // Create user
-    $result = $user->insert([
-        'name' => $name,
-        'email' => $email,
-        'password' => password_hash($password, PASSWORD_DEFAULT),
-        'room_no' => $_POST['room'] ?? '',
-        'ext' => $_POST['ext'] ?? '',
-        'building' => $_POST['building'] ?? '',
-        'role' => 'user',
-        'created_at' => date('Y-m-d H:i:s')
-    ]);
-    
-    if ($result) {
-        header('Location: /login?success=Registration successful! Please login.');
-    } else {
-        header('Location: /register?error=Registration failed. Please try again.');
-    }
+    http_response_code(403);
+    header('Location: /register?error=Self-registration is disabled. Please contact admin.');
     exit;
 });
 
-// Logout
 $router->get('/logout', function() {
     session_destroy();
     header('Location: /');
     exit;
 });
 
-// Products page (user browsing)
 $router->get('/products', function() {
     include 'views/products.php';
 });
 
-// Static Pages
 $router->get('/about', function() {
     include 'views/about.php';
 });
@@ -122,23 +70,69 @@ $router->get('/contact', function() {
 });
 
 $router->post('/contact/send', function() {
-    // Simple contact form handler
-    $name = $_POST['name'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $subject = $_POST['subject'] ?? '';
-    $message = $_POST['message'] ?? '';
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $subject = trim($_POST['subject'] ?? '');
+    $message = trim($_POST['message'] ?? '');
+    $adminEmail = 'admin@example.com';
     
     if (!$name || !$email || !$subject || !$message) {
         header('Location: /contact?error=All fields are required');
         exit;
     }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header('Location: /contact?error=Please enter a valid email address');
+        exit;
+    }
+
+    require_once 'models/contactMessage.php';
+    $contactMessage = new ContactMessage();
+    $saved = $contactMessage->insert([
+        'name' => $name,
+        'email' => $email,
+        'phone' => $phone,
+        'subject' => $subject,
+        'message' => $message
+    ]);
+
+    if (!$saved) {
+        header('Location: /contact?error=Unable to save your message right now. Please try again.');
+        exit;
+    }
+
+    $safeName = str_replace(["\r", "\n"], '', $name);
+    $safeEmail = str_replace(["\r", "\n"], '', $email);
+    $safeSubject = str_replace(["\r", "\n"], '', $subject);
+
+    $emailSubject = '[Contact Form] ' . $safeSubject;
+    $emailBody = "New message from contact form\n\n"
+        . "Name: {$safeName}\n"
+        . "Email: {$safeEmail}\n"
+        . "Phone: " . ($phone ?: 'N/A') . "\n"
+        . "Subject: {$safeSubject}\n\n"
+        . "Message:\n{$message}\n";
+
+    $headers = [
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: Cafeteria Contact Form <no-reply@cafeteria.local>',
+        'Reply-To: ' . $safeEmail,
+        'X-Mailer: PHP/' . phpversion()
+    ];
+
+    $sent = @mail($adminEmail, $emailSubject, $emailBody, implode("\r\n", $headers));
+
+    if (!$sent) {
+        header('Location: /contact?success=Your message was saved to admin dashboard. Email delivery is currently unavailable.');
+        exit;
+    }
     
-    // Here you could add email sending or database storage
-    header('Location: /contact?success=Thank you for your message! We will get back to you soon.');
+    header('Location: /contact?success=Your message has been sent to admin. You will get a reply soon.');
     exit;
 });
 
-// Product Detail Page (Dynamic)
 $router->get('/product/{id}', function($id) {
     require_once 'models/products.php';
     $product = new Product();
@@ -150,6 +144,5 @@ $router->get('/product/{id}', function($id) {
         return;
     }
     
-    // Pass product data to view
     include 'views/product/detail.php';
 });

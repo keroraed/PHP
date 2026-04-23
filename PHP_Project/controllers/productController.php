@@ -10,9 +10,7 @@ class ProductController {
         $this->product = new Product();
     }
 
-    /**
-     * Display all products
-     */
+    
     public function index() {
         $products = $this->product->getAllProducts();
         return [
@@ -22,9 +20,7 @@ class ProductController {
         ];
     }
 
-    /**
-     * Display a single product
-     */
+    
     public function show($id) {
         $product = $this->product->getProductById($id);
         if (!$product) {
@@ -41,9 +37,7 @@ class ProductController {
         ];
     }
 
-    /**
-     * Store a new product
-     */
+    
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return [
@@ -59,7 +53,6 @@ class ProductController {
         $description = $_POST['description'] ?? null;
         $image = $this->handleImageUpload();
 
-        // Validate input
         if (!$name || !$price || !$category_id) {
             return [
                 'success' => false,
@@ -92,9 +85,7 @@ class ProductController {
         }
     }
 
-    /**
-     * Update a product
-     */
+    
     public function update($id) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'PUT') {
             return [
@@ -143,9 +134,7 @@ class ProductController {
         }
     }
 
-    /**
-     * Delete a product
-     */
+    
     public function delete($id) {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'DELETE') {
             return [
@@ -188,9 +177,7 @@ class ProductController {
         }
     }
 
-    /**
-     * Handle image upload
-     */
+    
     private function handleImageUpload() {
         if (!isset($_FILES['image']) || $_FILES['image']['error'] === UPLOAD_ERR_NO_FILE) {
             return null;
